@@ -66,5 +66,5 @@ if not data.empty:
     st.bar_chart(mood_counts)
 
     # Footer
-    
-    st.write("Build with ❤️ by [Madiha Ansari](https://github.com/madiha-ansari/mood_tracker)")
+st.markdown("---")  # Adds a separator line
+st.write("Built with ❤️ by [Madiha Ansari](https://github.com/madiha-ansari/mood_tracker)")
