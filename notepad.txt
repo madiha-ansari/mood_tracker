@@ -1,0 +1,4 @@
+ramdan> uv init mood_tracker
+PS F:\ramdan> cd .\mood_tracker\
+uv add streamlit
+streamlit run main.py 
