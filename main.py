@@ -1,72 +1,70 @@
-import streamlit as st # For creating web interface
-import pandas as pd # For data manipulation
-import datetime # For handling dates
-import csv # For reading and writing CSV file
-import os # For file operations
+import streamlit as st  # Web Interface
+import pandas as pd  # Data Manipulation
+import datetime  # Date Handling
+import csv  # CSV File Operations
+import os  # File Handling
 
-# Define the file name for storing mood data
+# Mood Log File Name
 MOOD_FILE = "mood_log.csv"
 
-# Function to read mood data from the CSV file
+# Function to Read Mood Data
 def load_mood_data():
-    # Check if the file exists
     if not os.path.exists(MOOD_FILE):
-        # If no file, create empty DataFrame with columns
+        return pd.DataFrame(columns=["Date", "Mood"])  # Return Empty DataFrame if File Doesn't Exist
+    
+    # Read CSV and Ensure Header Exists
+    data = pd.read_csv(MOOD_FILE, header=0)
+
+    # If Header is Missing, Return Empty DataFrame
+    if "Date" not in data.columns or "Mood" not in data.columns:
         return pd.DataFrame(columns=["Date", "Mood"])
-    # Read and return existing mood data
-    return pd.read_csv(MOOD_FILE)
+    
+    return data
 
-# Function to add new mood entry to CSV file
+# Function to Save Mood Data
 def save_mood_data(date, mood):
-    # Open file in append mode
-    with open(MOOD_FILE, "a") as file:
-
-        # Create CSV writer
+    file_exists = os.path.exists(MOOD_FILE)
+    
+    with open(MOOD_FILE, "a", newline="") as file:
         writer = csv.writer(file)
 
-        # Add new mood entry
+        # Add Header if File is Empty
+        if not file_exists or os.stat(MOOD_FILE).st_size == 0:
+            writer.writerow(["Date", "Mood"])
+
         writer.writerow([date, mood])
 
-# Streamlit app title
+# Streamlit App Title
 st.title("Mood Tracker")
 
-# Get today's date
+# Get Today's Date
 today = datetime.date.today()
 
-# Create subheader for mood input
-st.subheader("How are your feeling today?")
-
-# Create dropdown for mood selection
+# Mood Selection
+st.subheader("How are you feeling today?")
 mood = st.selectbox("Select your mood", ["Happy", "Sad", "Angry", "Neutral"])
 
-# Create button to save mood
+# Log Mood Button
 if st.button("Log Mood"):
-    
-    # Save mood when button is clicked
     save_mood_data(today, mood)
-
-    # Show success message
     st.success("Mood Logged Successfully!")
 
-# Load existing mood data
+# Load Existing Data
 data = load_mood_data()
 
-# If there is data to display
+# Display Mood Trends if Data Exists
 if not data.empty:
-
-    # Create section for Visualization
     st.subheader("Mood Trends Over Time")
 
-    # Convert date stings to datetime Objects
-    data["Date"] = pd.to_datetime(data["Date"])
+    # Convert Date Column to datetime
+    data["Date"] = pd.to_datetime(data["Date"], errors='coerce')
 
-    # Count frequency of each mood
-    mood_counts = data.groupby("Mood").count()["Date"]
+    # Count Mood Frequencies
+    mood_counts = data["Mood"].value_counts()
 
-    # Display bar chart of mood frequencies
+    # Display Bar Chart
     st.bar_chart(mood_counts)
 
-    # Build with love by Asharib Ali
-    st.write("Build with ❤️ by [Asharib Ali](https://github.com/AsharibAli)")
-
-    # Mood Tracker has been completed  ✔
+    # Footer
+    
+    st.write("Build with ❤️ by [Madiha Ansari](https://github.com/madiha-ansari/mood_tracker)")
